@@ -22,6 +22,14 @@ const routes = [
   {
     path: '/a',
     component: () => import( '../views/AView.vue')
+  },
+  {
+    path: '/b',
+    component: () => import( '../views/BView.vue')
+  },
+  {
+    path: '/c',
+    component: () => import( '../views/CView.vue')
   }
 ]
 
