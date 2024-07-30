@@ -30,6 +30,10 @@ const routes = [
   {
     path: '/c',
     component: () => import( '../views/CView.vue')
+  },
+  {
+    path: '/ef',
+    component: () => import( '../views/EfView.vue')
   }
 ]
 

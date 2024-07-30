@@ -10,7 +10,14 @@
   <input type="radio" name="sex" value="3" v-model="user.sex">未知
   <br>
 <!--  绑定触发函数-->
-  <button @click="f()">注册</button>
+  <h1>事件绑定练习</h1>
+<!--  v-on:click="函数"-->
+  <button v-on:click="f()">按钮1</button><br>
+<!--  v-on:=@-->
+  <button @click="f()">注册</button><br>
+<!--  回车按下事件-->
+<!--@keydown.enter=""语法  -->
+  <input type="text" @keydown.enter="f()">
 </template>
 
 <script setup>
@@ -33,6 +40,8 @@ const f = ()=>{
 //  输出对应的user变量
   console.log(user.value)
 }
+
+
 </script>
 
 <style scoped>
