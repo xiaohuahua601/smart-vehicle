@@ -39,6 +39,7 @@
   <p v-if="true">张三</p>
   <p v-if="false">李四</p>
   <p v-if="info">王五</p>
+<!--  下面三个是一组的-->
   <p v-if="false">太阳</p>
   <p v-if="false">月亮</p>
   <p v-else>星星</p>

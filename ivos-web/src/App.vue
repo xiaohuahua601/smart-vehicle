@@ -1,13 +1,7 @@
 <template>
   <nav>
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>|
-    <router-link to="/other">其他</router-link>|
-    <router-link to="/a">文本练习相关</router-link>|
-    <router-link to="/b">属性绑定练习相关</router-link>|
-    <router-link to="/c">双向绑定练习相关</router-link>|<br>
-    <router-link to="/ef">循环和隐藏练习相关</router-link>|
-    <router-link to="/k">测试element页面相关</router-link>|
+    <router-link to="/about">About</router-link>
   </nav>
   <router-view/>
 </template>
