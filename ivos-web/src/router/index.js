@@ -5,15 +5,20 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    component: HomeView,
+  //  新增对应的子路径
+    redirect:'/user',
+    children:[
+      {path: '/user', component: () => import('../views/user/UserView.vue')},
+      {path: '/vehicle', component: () => import('../views/vehicle/VehicleView.vue')},
+      {path: '/geofence', component: () => import('../views/geofence/GeofenceView.vue')},
+      {path: '/geofenceMap', component: () => import('../views/geofence/GeofenceMapView.vue')},
+      {path: '/application', component: () => import('../views/schedule/ApplicationView.vue')},
+      {path: '/audit', component: () => import('../views/schedule/AuditView.vue')},
+      {path: '/distribute', component: () => import('../views/schedule/DistributeView.vue')},
+      {path: '/dict', component: () => import('../views/dictionary/DictView.vue')},
+      {path: '/dictOption', component: () => import('../views/dictionary/DictOptionView.vue')}
+    ]
   },
   {
     path: '/login',
