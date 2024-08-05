@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface UserMapper {
+    //根据用户名查询用户信息
     UserVO selectByUsername(String username);
     void insert(User user);
     void update(User user);

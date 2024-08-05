@@ -83,7 +83,7 @@
           <el-col :span="6" style="position: relative;">
             <el-dropdown trigger="click" style="position:absolute;right:20px;">
                      <span style="font-size:19px;font-weight: bold;">
-                        rose用户名
+                        {{ user.username }}
                          <el-icon><arrow-down/></el-icon>
                      </span>
               <template #dropdown>
@@ -123,7 +123,13 @@ const changeCollapsed = () => {
 
 //退出登录功能
 const logout = () => {
-  alert('确定退出登录')
+  if (confirm('确定要退出吗?')){
+    localStorage.removeItem('user');
+    //退出时,面包屑也需要清空!
+    localStorage.removeItem('breadCrumb');
+    window.location.href = '/login';
+    user.value = '';
+  }
 }
 //设置变量保存当前的面包屑导航的值，默认为用户列表界面
 //'["用户管理", "用户列表"]'作为默认值。
@@ -144,4 +150,6 @@ const selectMenu = (index) => {
   breadCrumb.value = map[index];
 
 };
+//获取登录的用户信息
+const user = ref(getUser());
 </script>
