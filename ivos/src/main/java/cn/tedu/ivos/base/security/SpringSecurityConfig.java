@@ -3,6 +3,7 @@ package cn.tedu.ivos.base.security;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -18,6 +19,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     @Autowired
     CustomAuthenticationFailureHandler authenticationFailureHandler;
+    @Autowired
+    CustomAuthenticationProvider authenticationProvider;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,6 +35,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(authenticationFailureHandler) //设置认证失败处理器---封装到类---注入对象
                 .permitAll() //允许所有用户进行登录尝试
                 ;
+    }
 
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authenticationProvider);
     }
 }
