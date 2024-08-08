@@ -8,6 +8,8 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 //2.引入EL图标相关内容 https://element-plus.org/zh-CN/component/icon.html#注册所有图标
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+//手动引入
+import axios from "axios";
 //5.配置根路径
 const BASE_URL = 'http://localhost:8080';
 //window里面添加的内容是全局内容，可以在任意script标签内部使用
@@ -18,6 +20,12 @@ const app = createApp(App)
 
 //6.在VUE实例中也要添加全局内容,BASE_URL才可以在template标签内部使用
 app.config.globalProperties.BASE_URL = BASE_URL
+
+//11.开启跨域携带 Cookie
+window.axios = axios;
+axios.defaults.withCredentials = true;
+//12.替换全局axios  注意之后不需要在自己的前端vue中直接使用axios即可  无需再次引入
+app.config.globalProperties.$axios = axios;
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

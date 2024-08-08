@@ -104,7 +104,6 @@
       <el-main style="padding:0;min-height:90vh;overflow-y: auto;">
         <router-view/>
       </el-main>
-      <router-view/>
     </div>
 
   </div>

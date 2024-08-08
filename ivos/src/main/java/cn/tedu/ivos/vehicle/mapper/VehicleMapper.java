@@ -9,7 +9,9 @@ import java.util.List;
 
 @Repository
 public interface VehicleMapper {
+    //根据条件查询车辆的基本信息
     List<VehicleVO> selectVehicle(VehicleQuery vehicleQuery);
+
     List<VehicleVO> selectVehicle(String license,String code);
 
     void insert(Vehicle vehicle);

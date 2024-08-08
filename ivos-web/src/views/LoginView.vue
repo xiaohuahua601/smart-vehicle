@@ -62,7 +62,7 @@ const login = ()=>{
   // data  {}--->''--->自动映射---》qs
   //作用：将JS对象转为查询字符串格式  username=tom&password=123456
   let data = qs.stringify(user.value);
-  axios.post(BASE_URL+'/v1/user/login',data).then(response=>{
+  axios.post(BASE_URL+'/login',data).then(response=>{
     console.log(response)
     if (response.data.code == 2000){
       //从顶部出现，3秒消失
