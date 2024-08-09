@@ -13,9 +13,9 @@ public interface VehicleMapper {
     List<VehicleVO> selectVehicle(VehicleQuery vehicleQuery);
 
     List<VehicleVO> selectVehicle(String license,String code);
-
+    //新增车辆信息
     void insert(Vehicle vehicle);
-
+    //修改车辆信息
     void update(Vehicle vehicle);
 
     void deleteVehicle(Long id);
