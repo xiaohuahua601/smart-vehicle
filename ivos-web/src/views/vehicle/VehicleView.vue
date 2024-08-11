@@ -5,7 +5,7 @@
     <el-button @click="dialogVisible=true" type="primary" style="float:right;margin-top:13px;">新建车辆</el-button>
   </div>
   <!-- 新增车辆弹窗 -->
-  <el-dialog :title="dialogTitle" v-model="dialogVisible" style="width:1000px;padding:40px;">
+  <el-dialog :title="dialogTitle" v-model="dialogVisible" style="width:1000px;padding:40px;" :before-close="handleClose">
     <el-form label-width="80px" label-position="top">
       <el-row :gutter="30">
         <el-col :span="12">
@@ -106,7 +106,7 @@
       </el-row>
     </el-form>
     <template #footer>
-      <el-button>取消</el-button>
+      <el-button @click="handleClose">取消</el-button>
       <el-button type="primary" @click="saveVehicle">确定</el-button>
     </template>
   </el-dialog>
@@ -133,16 +133,19 @@
       <el-table-column prop="brand" label="车辆品牌" align="center"/>
       <el-table-column prop="license" label="车牌号" align="center"/>
       <el-table-column prop="code" label="车辆识别码" align="center"/>
-      <el-table-column prop="type" label="车辆类型" align="center"/>
+      <el-table-column prop="type" label="车辆类型" align="center"
+                       :formatter="vehicleTypeFormatter"/>
       <el-table-column prop="buyMoney" label="购买价格" align="center"/>
       <el-table-column prop="buyTime" label="购买时间" align="center"/>
       <el-table-column prop="regTime" label="上牌时间" align="center"/>
-      <el-table-column prop="batteryType" label="电池类型" align="center"/>
-      <el-table-column prop="status" label="车辆状态" align="center"/>
+      <el-table-column prop="batteryType" label="电池类型" align="center"
+                       :formatter="batteryTypeFormatter"/>
+      <el-table-column prop="status" label="车辆状态" align="center"
+                       :formatter="vehicleStatusFormatter"/>
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button link type="primary" size="small">编辑</el-button>
-          <el-button link type="primary" size="small">删除</el-button>
+          <el-button link type="primary" size="small" @click="editVehicle(scope.row.id)">编辑</el-button>
+          <el-button link type="primary" size="small" @click="deleteVehicle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -154,7 +157,7 @@ import qs from "qs";
 import {ElMessage} from "element-plus";
 
 //控制新增车辆弹窗是否显示
-const dialogVisible = ref(false);
+let dialogVisible = ref(false);
 //定义变量控制dialog的标题
 const dialogTitle = ref('新增车辆');
 //定义查询对象
@@ -206,14 +209,16 @@ const saveVehicleForm = ref({
 });
 //定义保存车辆的方法
   const saveVehicle = ()=>{
+    //注意 .value
     let data = qs.stringify(saveVehicleForm.value);
    //发起后端请求
     axios.post(BASE_URL+'/v1/vehicle/save',data).then(response=>{
       console.log(response);
       if (response.data.code==2000){
-        ElMessage.success("新增成功");
+        //修改逻辑
+        ElMessage.success("保存成功");
         //关闭新增弹框
-        dialogVisible.value=false;
+        dialogVisible.value = false;
         //清空表单数据
         saveVehicleForm.value = {};
         //重新加载车辆信息
@@ -223,4 +228,85 @@ const saveVehicleForm = ref({
       }
     })
   }
+// 实现新增中 取消和关闭的一个效果
+  const handleClose = ()=>{
+    //误触 做判断
+    if (confirm('确定是否关闭本窗口')){
+      dialogVisible.value = false;
+      saveVehicleForm.value= {};
+    }
+  }
+  //编辑车辆信息 editVehicle(scope.row.id)
+  const editVehicle = (id)=>{
+    //显示弹框
+    dialogVisible.value = true;
+    //修改弹框标题
+    dialogTitle.value = '编辑车辆信息'
+    //回显车辆信息
+    axios.get(BASE_URL+'/v1/vehicle/select?id='+id).then(response=>{
+      if (response.data.code == 2000){
+        // 将我们查询的数据 会回显弹框表单里面
+        saveVehicleForm.value = response.data.data[0];
+      }else {
+        ElMessage.error(response.data.msg);
+      }
+    })
+  }
+  //deleteVehicle(scope.row.id) 初始化删除
+const deleteVehicle = (id)=>{
+  //误触 做判断
+  if (confirm('确定是否删除车辆信息')){
+    //回显车辆信息 /v1/vehicle/delete/1
+    axios.post(BASE_URL+'/v1/vehicle/delete/'+id).then(response=>{
+      if (response.data.code == 2000){
+        ElMessage.success('删除成功');
+        loadVehicle();
+      }else {
+        ElMessage.error(response.data.msg);
+      }
+    })
+  }
+}
+// 数值  车辆类型 10 20 30 40
+//车辆类型显示转换
+const vehicleTypeFormatter = (row, column,cellValue,index) => {
+  if(cellValue==10){
+    cellValue= '轿车';
+  }else if(cellValue==20){
+    cellValue= '货车';
+  }else if(cellValue==30){
+    cellValue= '客车';
+  }else if(cellValue==40){
+    cellValue= '挂车';
+  }
+  return cellValue;
+}
+//电池类型显示转换
+const batteryTypeFormatter = (row, column,cellValue,index) => {
+  if (cellValue==10){
+    cellValue= '铅酸蓄电池';
+  }else if (cellValue==20){
+    cellValue= '镍氢电池';
+  }else if (cellValue==30){
+    cellValue= '钠硫电池';
+  }else if (cellValue==40){
+    cellValue= '二次锂电池';
+  }else if (cellValue==50){
+    cellValue= '空气电池';
+  }else if (cellValue==60){
+    cellValue= '三元锂电池';
+  }else if (cellValue==70){
+    cellValue= '碱性燃料电池';
+  }
+  return cellValue;
+}
+//车辆状态显示转换
+const vehicleStatusFormatter = (row, column,cellValue,index) => {
+  if(cellValue==1){
+    cellValue= '空闲';
+  }else if(cellValue==2){
+    cellValue= '占用';
+  }
+  return cellValue;
+}
 </script>
