@@ -10,31 +10,31 @@
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="车辆品牌">
-            <el-input placeholder="请输入内容"></el-input>
+            <el-input placeholder="请输入内容" v-model="saveVehicleForm.brand"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="车辆牌号">
-            <el-input placeholder="请输入内容"></el-input>
+            <el-input placeholder="请输入内容" v-model="saveVehicleForm.license"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="车辆型号">
-            <el-input placeholder="请输入内容"></el-input>
+            <el-input placeholder="请输入内容" v-model="saveVehicleForm.model"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="车辆识别码">
-            <el-input placeholder="请输入内容"></el-input>
+            <el-input placeholder="请输入内容" v-model="saveVehicleForm.code"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="车辆排量">
-            <el-select placeholder="请选择">
+            <el-select placeholder="请选择" v-model="saveVehicleForm.displacement">
               <el-option label="1.6" value="1"></el-option>
               <el-option label="2.5" value="2"></el-option>
               <el-option label="4" value="3"></el-option>
@@ -43,7 +43,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="车辆类型">
-            <el-select placeholder="请选择">
+            <el-select placeholder="请选择"  v-model="saveVehicleForm.type">
               <el-option label="轿车" value="10"></el-option>
               <el-option label="货车" value="20"></el-option>
               <el-option label="客车" value="30"></el-option>
@@ -55,7 +55,7 @@
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="车身颜色">
-            <el-select placeholder="请选择">
+            <el-select placeholder="请选择" v-model="saveVehicleForm.color">
               <el-option label="黑" value="10"></el-option>
               <el-option label="白" value="20"></el-option>
               <el-option label="蓝" value="30"></el-option>
@@ -66,31 +66,33 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="里程数">
-            <el-input placeholder="请输入内容"></el-input>
+            <el-input placeholder="请输入内容" v-model="saveVehicleForm.kilometers"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="购买时间">
-            <el-date-picker type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
+            <el-date-picker type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
+                            v-model="saveVehicleForm.buyTime"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="上牌时间">
-            <el-date-picker type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
+            <el-date-picker type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
+                            v-model="saveVehicleForm.regTime"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="购买价格">
-            <el-input placeholder="请输入内容"></el-input>
+            <el-input placeholder="请输入内容" v-model="saveVehicleForm.buyMoney"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="电池类型">
-            <el-select placeholder="请选择">
+            <el-select placeholder="请选择" v-model="saveVehicleForm.batteryType">
               <el-option label="铅酸蓄电池" value="10"></el-option>
               <el-option label="镍氢电池" value="20"></el-option>
               <el-option label="钠硫电池" value="30"></el-option>
@@ -105,7 +107,7 @@
     </el-form>
     <template #footer>
       <el-button>取消</el-button>
-      <el-button type="primary">确定</el-button>
+      <el-button type="primary" @click="saveVehicle">确定</el-button>
     </template>
   </el-dialog>
   <!-- 车辆搜索卡片 -->
@@ -187,4 +189,38 @@ const resetSearch = ()=>{
   searchVehicleForm.value={};
   loadVehicle();
 }
+//定义一个新增的车辆对象
+const saveVehicleForm = ref({
+  brand:'',
+  license:'',
+  model:'',
+  code:'',
+  displacement:'',
+  type:'',
+  color:'',
+  kilometers:'',
+  buyTime:'',
+  regTime:'',
+  buyMoney:'',
+  batteryType:''
+});
+//定义保存车辆的方法
+  const saveVehicle = ()=>{
+    let data = qs.stringify(saveVehicleForm.value);
+   //发起后端请求
+    axios.post(BASE_URL+'/v1/vehicle/save',data).then(response=>{
+      console.log(response);
+      if (response.data.code==2000){
+        ElMessage.success("新增成功");
+        //关闭新增弹框
+        dialogVisible.value=false;
+        //清空表单数据
+        saveVehicleForm.value = {};
+        //重新加载车辆信息
+        loadVehicle();
+      }else {
+        ElMessage.error(response.data.msg);
+      }
+    })
+  }
 </script>

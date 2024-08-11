@@ -11,4 +11,6 @@ public interface VehicleService {
    List<VehicleVO> selectVehicle(VehicleQuery vehicleQuery);
    //新增的业务
    void saveVehicle(VehicleSaveParam vehicleSaveParam);
+   //删除方法
+   void deleteVehicle(Long id);
 }

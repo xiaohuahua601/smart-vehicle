@@ -17,7 +17,7 @@ public interface VehicleMapper {
     void insert(Vehicle vehicle);
     //修改车辆信息
     void update(Vehicle vehicle);
-
+    //删除车辆信息
     void deleteVehicle(Long id);
 
     void updateNullValue(Vehicle vehicle);

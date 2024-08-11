@@ -41,7 +41,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.js",
                         "/**/*.css",
                         "/swagger-resources",
-                        "/v2/api-docs"
+                        "/v2/api-docs",
+//                        方便我们测试接口
+                        "/**"
                 ).permitAll() // 对指定的资源不进行权限检查，允许所有用户访问
                 .anyRequest().authenticated() //对其他所有请求要求用户必须认证通过
                 .and().formLogin()  // 配置表单登录，默认拦截的登录请求地址为/login

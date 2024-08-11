@@ -46,4 +46,9 @@ public class VehicleServiceImpl implements VehicleService {
             vehicleMapper.update(vehicle);
         }
     }
+
+    @Override
+    public void deleteVehicle(Long id) {
+        vehicleMapper.deleteVehicle(id);
+    }
 }
