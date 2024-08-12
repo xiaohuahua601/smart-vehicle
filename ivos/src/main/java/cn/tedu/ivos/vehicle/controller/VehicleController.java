@@ -53,4 +53,12 @@ public class VehicleController {
         return JsonResult.ok();
     }
 
+    //车辆和围栏解绑
+    @PostMapping("/unbind/{vehicleId}")
+    public JsonResult unbindVehicle(@PathVariable Long vehicleId){
+        log.debug("解绑车辆:vehicleId={}",vehicleId);
+        //todo  做业务(作业) 12-13  6
+        return JsonResult.ok();
+    }
+
 }

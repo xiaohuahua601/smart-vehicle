@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface GeofenceMapper {
-
+   //查询围栏列表
     List<GeofenceVO> selectGeofence(GeofenceQuery geofenceQuery);
 
     void update(Geofence geofence);
