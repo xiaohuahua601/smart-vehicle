@@ -51,4 +51,30 @@ public class VehicleServiceImpl implements VehicleService {
     public void deleteVehicle(Long id) {
         vehicleMapper.deleteVehicle(id);
     }
+
+    @Override
+    public void unbindVehicle(Long vehicleId) {
+        //初始化车辆对象
+        Vehicle vehicle = new Vehicle();
+        vehicle.setId(vehicleId);
+        //围栏id  null  绑定状态 0  修改时间 当前系统时间
+        vehicle.setGeofenceId(null);
+        vehicle.setGeofenceBindStatus("0");
+        vehicle.setUpdateTime(new Date());
+        //之前的update方法有 if test !=null,要求是如果值为null则不更新
+        //但是现在的业务更新的值就是null值,需要给车辆解除绑定
+        //所以需要单独设置一个mapper层的方法,给当前车辆的geofence_id设为null
+        vehicleMapper.updateNullValue(vehicle);
+    }
+
+    @Override
+    public void bindVehicle(Long geofenceId, Long vehicleId) {
+        Vehicle vehicle = new Vehicle();
+        vehicle.setId(vehicleId);
+        vehicle.setGeofenceBindStatus("1");
+        vehicle.setGeofenceId(geofenceId);
+        vehicle.setUpdateTime(new Date());
+        //去做修改
+        vehicleMapper.update(vehicle);
+    }
 }

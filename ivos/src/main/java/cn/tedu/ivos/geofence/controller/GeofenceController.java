@@ -29,4 +29,8 @@ public class GeofenceController {
         //记得返回数据
         return JsonResult.ok(geofenceVOS);
     }
+    //todo 删除围栏  12-13  【11】
+//    先判断 围栏中有没有车 有车不让删---》给前端提示
+//    没有车 在进行删除
+//    前后端都做
 }

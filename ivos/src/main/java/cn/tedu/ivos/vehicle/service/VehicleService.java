@@ -13,4 +13,8 @@ public interface VehicleService {
    void saveVehicle(VehicleSaveParam vehicleSaveParam);
    //删除方法
    void deleteVehicle(Long id);
+   //车辆解绑围栏业务 修改
+   void unbindVehicle(Long vehicleId);
+   //车辆绑定围栏
+   void bindVehicle(Long geofenceId,Long vehicleId);
 }

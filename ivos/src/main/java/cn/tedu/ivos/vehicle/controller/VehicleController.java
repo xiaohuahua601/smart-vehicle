@@ -57,8 +57,18 @@ public class VehicleController {
     @PostMapping("/unbind/{vehicleId}")
     public JsonResult unbindVehicle(@PathVariable Long vehicleId){
         log.debug("解绑车辆:vehicleId={}",vehicleId);
-        //todo  做业务(作业) 12-13  6
+        vehicleService.unbindVehicle(vehicleId);
         return JsonResult.ok();
     }
+
+    //车辆和围栏绑定
+    @PostMapping("/bind/{geofenceId}/{vehicleId}")
+    public JsonResult bindVehicle(@PathVariable Long geofenceId,@PathVariable Long vehicleId){
+        log.debug("绑定车辆geofenceId={}:vehicleId={}",geofenceId,vehicleId);
+        vehicleService.bindVehicle(geofenceId,vehicleId);
+        return JsonResult.ok();
+    }
+
+
 
 }

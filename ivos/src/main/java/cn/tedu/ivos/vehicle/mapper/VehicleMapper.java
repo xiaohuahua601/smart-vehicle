@@ -19,6 +19,6 @@ public interface VehicleMapper {
     void update(Vehicle vehicle);
     //删除车辆信息
     void deleteVehicle(Long id);
-
+    //这个就是 解绑车辆围栏的 接口和对应sql
     void updateNullValue(Vehicle vehicle);
 }
