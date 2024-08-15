@@ -2,7 +2,8 @@
 <template>
   <div style="height: 6vh;background-color:#fff;padding:10px 20px;">
     <span style="line-height:60px;font-size:20px;">围栏管理</span>
-    <el-button type="primary" style="float:right;margin-top:13px;" @click="router.push('/geofenceMap')">新建围栏</el-button>
+    <el-button type="primary" style="float:right;margin-top:13px;"
+               @click="router.push('/geofenceMap')">新建围栏</el-button>
   </div>
   <!-- 围栏查询卡片 -->
   <el-card style="margin:20px;height: 70px;">
