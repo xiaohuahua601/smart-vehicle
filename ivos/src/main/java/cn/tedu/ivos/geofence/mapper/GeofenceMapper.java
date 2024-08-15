@@ -11,10 +11,10 @@ import java.util.List;
 public interface GeofenceMapper {
    //查询围栏列表
     List<GeofenceVO> selectGeofence(GeofenceQuery geofenceQuery);
-
+    //修改围栏
     void update(Geofence geofence);
-
+    //新增围栏
     void insert(Geofence geofence);
-
+    //根据id删除围栏信息
     void deleteById(Long id);
 }

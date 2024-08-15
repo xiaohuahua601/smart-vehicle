@@ -32,13 +32,14 @@
       <el-table-column label="创建时间" prop="createTime" align="center"></el-table-column>
       <el-table-column label="围栏状态" align="center">
         <template #default="scope">
-          <el-switch inactive-value="0" active-value="1" v-model="scope.row.status"></el-switch>
+          <el-switch inactive-value="0" active-value="1" v-model="scope.row.status"
+          @change="changeStatus(scope.row.id,scope.row.status)"></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button type="primary" link @click="loadVehicle(scope.row.id)" >管理车辆</el-button>
-          <el-button type="primary" link>删除</el-button>
+          <el-button type="primary" link @click="deleteGeo(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -187,7 +188,33 @@ const handleClose = ()=>{
   //让当前弹框 不显示
   AddBindVehicleDialogVisible.value = false;
 }
+//changeStatus(scope.row.id,scope.row.status) 修改状态
+const changeStatus = (id,status)=>{
+ let data =  qs.stringify( {id:id,status:status});
+ axios.post(BASE_URL+'/v1/geofence/save',data).then((response)=>{
+   if (response.data.code ==2000){
+     ElMessage.success('修改围栏状态成功')
+   }else {
+     ElMessage.error(response.data.msg)
+   }
+ })
+}
 
+//deleteGeo(scope.row.id) 初始化删除围栏
+const deleteGeo = (id)=>{
+  //防止误触  做判断
+  if (confirm('是否删除该围栏信息')){
+    axios.post(BASE_URL+'/v1/geofence/delete/'+id).then((response)=>{
+      if (response.data.code ==2000){
+        ElMessage.success('删除围栏成功')
+        //重新加载电子围栏数据
+        loadGeo()
+      }else {
+        ElMessage.error("请移除当前围栏中的车辆")
+      }
+    })
+  }
+}
 </script>
 
 <style scoped>

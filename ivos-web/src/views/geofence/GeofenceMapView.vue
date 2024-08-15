@@ -7,18 +7,38 @@
   </div>
   <!-- 第6步:创建地图容器元素 -->
   <div id="mapContainer" style="width: 100%; height:84vh;"></div>
+
+  <!-- 新增电子围栏弹窗 -->
+  <el-dialog v-model="dialogVisible" title="围栏信息" :before-close="closeDialog">
+    <el-form  label-width="80px">
+      <el-form-item label="围栏名称">
+        <el-input v-model="geofence.name" placeholder="请输入围栏名称"></el-input>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="closeDialog">取消</el-button>
+        <el-button type="primary" @click="saveGeofence">确 定</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
 import router from "@/router";
 import {nextTick, onMounted, ref} from "vue";
 import { DrawScene, DrawControl,OperateEventType } from 'bmap-draw';
+import {ElMessage} from "element-plus";
+import qs from "qs";
+
+//声明变量用于保存地图对象
+var map;
 
 onMounted(()=>{
   //表示在DOM更新之后再执行,因为我们要确保上方div创建之后再给div里渲染地图
   nextTick(()=>{
     //第7步:创建地图示例,注意:不要引入,忽略提示!
-    let map = new BMapGL.Map("mapContainer");
+    map = new BMapGL.Map("mapContainer");
     //第8步:设置中心点坐标，设置经纬度
     let point = new BMapGL.Point(116.4074, 39.9024);
     //第9步：设置地图显示的中心点与地图缩放级别
@@ -43,12 +63,15 @@ onMounted(()=>{
     //5.监听绘制完成事件,返回触发完成事件的电子围栏对象
     //注意: OperateEventType需要导入!
     scene.addEventListener(OperateEventType.COMPLETE,(event)=>{
+      //设置弹框对象 显示
+      dialogVisible.value=true;
       console.log(event.target);
       //6.从触发完成事件的围栏对象中获取围栏数据
       let overlay = event.target.overlay;
       //7.判断绘制的图形是圆形还是矩形
       //instanceof用来判断对象overlay是否为BMapGL.Circle类的实例
-      if(overlay instanceof BMapGL.Circle){//绘制的围栏是圆形
+      if(overlay instanceof BMapGL.Circle){
+        //绘制的围栏是圆形
         //设置围栏类型为圆形
         geofence.value.position.type = 'circle';
         //设置圆形围栏的半径值
@@ -93,6 +116,39 @@ const geofence = ref({
   name:'',//围栏名称
   position: {}//围栏信息
 })
+
+//初始化弹框 dialogVisible 变量 控制是否显示
+const dialogVisible = ref(false);
+
+//saveGeofence  验证围栏名称不能为null 也不能为null字符串  像后端发送新增请求
+const saveGeofence = ()=>{
+  if (!geofence.value.name || geofence.value.name.trim().length==0){
+    ElMessage.error('围栏名称不能为空')
+    return;
+  }
+  console.log("电子围栏参数信息:{}",geofence.value)
+  let data = qs.stringify(geofence.value);
+  axios.post(BASE_URL+'/v1/geofence/save',data).then((response)=>{
+    if (response.data.code == 2000){
+      ElMessage.success('保存成功')
+      dialogVisible.value=false
+      //跳转至电子围栏管理页
+      router.push('/geofence')
+    }else {
+      ElMessage.error(response.data.msg)
+    }
+  })
+}
+
+// closeDialog  关闭弹框 清空地图上的围栏
+
+const closeDialog = ()=>{
+  if (confirm('确定取消新增围栏')){
+    dialogVisible.value=false;
+    //15.3 清空地图对象上的图形遮罩
+    map.clearOverlays();
+  }
+}
 
 </script>
 

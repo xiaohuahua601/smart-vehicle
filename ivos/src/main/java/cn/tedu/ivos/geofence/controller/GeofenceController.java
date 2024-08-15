@@ -1,14 +1,13 @@
 package cn.tedu.ivos.geofence.controller;
 
 import cn.tedu.ivos.base.response.JsonResult;
+import cn.tedu.ivos.geofence.pojo.dto.GeofenceParam;
 import cn.tedu.ivos.geofence.pojo.dto.GeofenceQuery;
 import cn.tedu.ivos.geofence.pojo.vo.GeofenceVO;
 import cn.tedu.ivos.geofence.service.GeofenceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,11 +28,19 @@ public class GeofenceController {
         //记得返回数据
         return JsonResult.ok(geofenceVOS);
     }
-    //todo 删除围栏  12-13  【11】  1
-//    先判断 围栏中有没有车 有车不让删---》给前端提示
-//    没有车 在进行删除
-//    前后端都做
-    //todo 修改围栏状态  12-13  【10】   2
 
-    //todo 新增围栏状态  12-13  【9】  3
+    @PostMapping("/save")
+    public JsonResult saveGeofence(GeofenceParam geofenceParam){
+        log.debug("收到前端传过来的围栏信息:{}",geofenceParam);
+        geofenceService.saveGeofence(geofenceParam);
+        return JsonResult.ok();
+    }
+
+    @PostMapping("/delete/{id}")
+    public JsonResult deleteGeofence(@PathVariable Long id){
+        log.debug("删除的围栏id:{}",id);
+        geofenceService.deleteGeofence(id);
+        return JsonResult.ok();
+    }
+
 }
