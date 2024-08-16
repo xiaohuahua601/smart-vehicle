@@ -10,7 +10,7 @@
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="用车人">
-            <el-input readonly></el-input>
+            <el-input readonly :value="user.username"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -73,21 +73,22 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="审批人">
+            <!-- 审批人是固定的,上级 上上级,可以根据当前登录用户查出,有就显示,没有就消失 -->
             <el-row :gutter="10">
-              <el-col :span="12">
+              <el-col :span="12" v-if="auditUserOpts.length>0">
                 <el-tag type="primary">
                   <el-icon style="margin-right:5px;position:relative;top:2px;">
                     <User/>
                   </el-icon>
-                  <span>审批人姓名1</span>
+                  <span>{{auditUserOpts[0].username}}</span>
                 </el-tag>
               </el-col>
-              <el-col :span="12">
+              <el-col :span="12" v-if="auditUserOpts.length>1">
                 <el-tag type="primary">
                   <el-icon style="margin-right:5px;position:relative;top:2px;">
                     <User/>
                   </el-icon>
-                  <span>审批人姓名2</span>
+                  <span>{{ auditUserOpts[1].username }}</span>
                 </el-tag>
               </el-col>
             </el-row>
@@ -160,6 +161,8 @@
 </template>
 <script setup>
 import {onMounted, ref} from "vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 //定义变量控制创建申请单弹窗是否出现
 const addApplicationDialogVisible = ref(false);
 
@@ -179,6 +182,34 @@ const handlePictureCardPreview = (uploadFile) => {
   dialogImageUrl.value= BASE_URL+uploadFile.response.data
 }
 /**图片上传相关代码结束**/
+//获取当前登陆的用户对象
+const user = ref(getUser());
+//定义数组用来保存页面上显示的表单审批人选项信息
+const auditUserOpts = ref([]);
+//定义数组用来保存审批人用户id,新增申请单时入库
+const auditUserIdList = ref([]);
+//定义加载审批人的方法
+const loadAuditUser = ()=>{
+  let parentId =  user.value.parentId;
+  //查询 select/audit/{parentId}
+  axios.get(BASE_URL+'/v1/user/select/audit/'+parentId).then((response)=>{
+    console.log(response)
+    if (response.data.code == 2000){
+      auditUserOpts.value =  response.data.data;
+      //遍历 auditUserOpts.value
+      for (let i=0;i<auditUserOpts.value.length;i++){
+        //依次取出上级与上上级审批人的id值,存入auditUserIdList中，在新增时一起传给后端
+        auditUserIdList.value.push(auditUserOpts.value[i].id)
+      }
+    }else {
+      ElMessage.error(response.data.msg)
+    }
+  })
+  console.log(parentId)
+}
+onMounted(()=>{
+  loadAuditUser();
+})
 </script>
 
 <style scoped>
