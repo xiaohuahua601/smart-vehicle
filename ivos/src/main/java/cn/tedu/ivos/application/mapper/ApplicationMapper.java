@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ApplicationMapper {
-
+    //新增
     void insert(Application application);
 
     List<ApplicationVO> selectApplication(ApplicationQuery applicationQuery);

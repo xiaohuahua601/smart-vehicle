@@ -53,7 +53,22 @@
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="驾照">
-
+            <el-upload
+                v-model:file-list="fileList"
+                action="http://localhost:8080/v1/file/upload"
+                name="file"
+                limit="1"
+                list-type="picture-card"
+                :on-preview="handlePictureCardPreview"
+                :on-remove="handleRemove"
+            >
+              <el-icon>
+                <Plus/>
+              </el-icon>
+            </el-upload>
+            <el-dialog v-model="dialogVisible">
+              <img w-full :src="dialogImageUrl"/>
+            </el-dialog>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -148,7 +163,22 @@ import {onMounted, ref} from "vue";
 //定义变量控制创建申请单弹窗是否出现
 const addApplicationDialogVisible = ref(false);
 
-
+/**图片上传相关代码开始**/
+const fileList = ref([]);
+const dialogImageUrl = ref('');
+const dialogVisible = ref(false);
+//移除图片
+const handleRemove = (uploadFile, uploadFiles) => {
+  console.log(uploadFile, uploadFiles);
+}
+//图片上传后预览
+const handlePictureCardPreview = (uploadFile) => {
+  dialogVisible.value = true;
+  console.log(uploadFile);
+  console.log(uploadFile.response.data);
+  dialogImageUrl.value= BASE_URL+uploadFile.response.data
+}
+/**图片上传相关代码结束**/
 </script>
 
 <style scoped>
