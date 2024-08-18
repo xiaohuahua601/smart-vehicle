@@ -27,4 +27,5 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setCreateTime(new Date());
         applicationMapper.insert(application);
     }
+    //wdhishklszndkl
 }
