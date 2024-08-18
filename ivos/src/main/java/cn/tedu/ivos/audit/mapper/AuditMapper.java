@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface AuditMapper {
+    //新增
     void insert(Audit audit);
 
     List<AuditVO> selectAuditByApplicationId(Long id);

@@ -22,6 +22,7 @@
                 end-placeholder="结束日期"
                 value-format="YYYY-MM-DD HH:mm:ss"
                 format="YYYY-MM-DD HH:mm:ss"
+                v-model="times"
             ></el-date-picker>
           </el-form-item>
         </el-col>
@@ -29,24 +30,28 @@
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="车辆出发地">
-            <el-input placeholder="请输入"></el-input>
+            <el-input placeholder="请输入"
+            v-model="addForm.departureAddr"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="车辆目的地">
-            <el-input placeholder="请输入"></el-input>
+            <el-input placeholder="请输入"
+              v-model="addForm.destinationAddr"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="30">
         <el-col :span="12">
           <el-form-item label="用车事由">
-            <el-input placeholder="请输入" type="textarea" resize="none" :rows="3"></el-input>
+            <el-input placeholder="请输入" type="textarea" resize="none" :rows="3"
+                      v-model="addForm.reason"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="备注">
-            <el-input placeholder="请输入" type="textarea" resize="none" :rows="3"></el-input>
+            <el-input placeholder="请输入" type="textarea" resize="none" :rows="3"
+                      v-model="addForm.remark"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -98,7 +103,7 @@
     </el-form>
     <template #footer>
       <el-button>取消</el-button>
-      <el-button type="primary">确定</el-button>
+      <el-button type="primary" @click="addApplication">确定</el-button>
     </template>
   </el-dialog>
 
@@ -163,6 +168,7 @@
 import {onMounted, ref} from "vue";
 import axios from "axios";
 import {ElMessage} from "element-plus";
+import qs from "qs";
 //定义变量控制创建申请单弹窗是否出现
 const addApplicationDialogVisible = ref(false);
 
@@ -210,6 +216,36 @@ const loadAuditUser = ()=>{
 onMounted(()=>{
   loadAuditUser();
 })
+
+//初始化时间对象 数组
+const times = ref([]);
+// 初始化对象 新增
+const addForm = ref({
+  departureAddr:'',
+  destinationAddr:'',
+  reason:'',
+  remark:''
+})
+//addApplication 新增申请单
+const addApplication = ()=>{
+  if (fileList.value.length==0){
+    ElMessage.error('请上传图片')
+    return;
+  }
+  //做一个初始化
+  ////驾照图片路径
+  addForm.value.imgUrl = fileList.value[0].response.data;
+  addForm.value.userId = user.value.id;
+  addForm.value.username = user.value.username;
+  addForm.value.startTime = times.value[0];
+  addForm.value.endTime = times.value[1];
+  addForm.value.auditUserIdList = auditUserIdList.value;
+  console.log(addForm.value);
+  let data = qs.stringify(addForm.value);
+  axios.post(BASE_URL+'/v1/application/save', data).then((response)=>{
+    console.log(response)
+  })
+}
 </script>
 
 <style scoped>
