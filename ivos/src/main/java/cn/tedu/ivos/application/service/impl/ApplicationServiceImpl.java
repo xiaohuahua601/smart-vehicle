@@ -62,6 +62,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         //记得返回数据
         return list;
     }
+
+    @Override
+    public void cancel(Long id) {
+        Application application = new Application();
+        application.setId(id);
+        application.setStatus(ApplicationStatusEnum.CANCEL.getCode());
+        //修改状态
+        applicationMapper.update(application);
+        //删除对应审核表中的审核数据
+        auditMapper.deleteByApplicationId(id);
+    }
+
     /**
      * 给applicationVO的auditUserIdList与auditUsernameList字段赋值
      * 也就是处理当前申请单的审批人相关信息

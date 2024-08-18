@@ -9,4 +9,5 @@ import java.util.List;
 public interface ApplicationService {
     void save(ApplicationSaveParam applicationSaveParam);
     List<ApplicationVO> selectApplication(ApplicationQuery applicationQuery);
+    void cancel(Long id);
 }

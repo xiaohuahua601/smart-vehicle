@@ -161,7 +161,8 @@
       :formatter="appStatusFormatter"></el-table-column>
       <el-table-column label="操作" width="120" align="center">
         <template #default="scope">
-          <el-button type="primary" size="small" link>撤销</el-button>
+          <el-button type="primary" size="small" link
+          :disabled ="scope.row.status!=10" @click="cancel(scope.row.id)">撤销</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -319,7 +320,17 @@ const appStatusFormatter = (row, column,cellValue,index) => {
   }
   return cellValue;
 }
-
+//撤销初始化 cancel(scope.row.id)
+const  cancel = (id)=>{
+  axios.post(BASE_URL+'/v1/application/cancel/'+id).then((response)=>{
+    if (response.data.code == 2000) {
+      ElMessage.success("已撤销申请单!");
+      loadApplication();
+    } else {
+      ElMessage.error(response.data.msg);
+    }
+  })
+}
 </script>
 
 <style scoped>
