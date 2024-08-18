@@ -11,7 +11,7 @@ import java.util.List;
 public interface ApplicationMapper {
     //新增
     void insert(Application application);
-
+    //查询申请表信息
     List<ApplicationVO> selectApplication(ApplicationQuery applicationQuery);
 
     void update(Application application);

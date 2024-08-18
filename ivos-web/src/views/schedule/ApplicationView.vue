@@ -5,7 +5,8 @@
     <el-button type="primary" style="float:right;margin-top:13px;" @click="addApplicationDialogVisible=true">申请用车</el-button>
   </div>
   <!-- 申请用车弹窗 -->
-  <el-dialog title="创建申请单" v-model="addApplicationDialogVisible" style="width:1000px;padding:40px;">
+  <el-dialog title="创建申请单" v-model="addApplicationDialogVisible" style="width:1000px;padding:40px;"
+  :beforl-close="handleClose">
     <el-form label-width="80px" label-position="top">
       <el-row :gutter="30">
         <el-col :span="12">
@@ -102,7 +103,7 @@
       </el-row>
     </el-form>
     <template #footer>
-      <el-button>取消</el-button>
+      <el-button @click="handleClose">取消</el-button>
       <el-button type="primary" @click="addApplication">确定</el-button>
     </template>
   </el-dialog>
@@ -113,31 +114,33 @@
       <el-row :gutter="30">
         <el-col :span="5">
           <el-form-item label="出发地">
-            <el-input placeholder="请输入出发地"></el-input>
+            <el-input placeholder="请输入出发地"  v-model="searchApplication.departureAddr"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="5">
           <el-form-item label="目的地">
-            <el-input placeholder="请输入目的地"></el-input>
+            <el-input placeholder="请输入目的地" v-model="searchApplication.destinationAddr"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="5">
           <el-form-item label="申请单状态">
-            <el-select placeholder="请选择">
-              <el-option label="已发起" value="10"></el-option>
-              <el-option label="撤销" value="20"></el-option>
-              <el-option label="审核中" value="30"></el-option>
-              <el-option label="驳回" value="40"></el-option>
-              <el-option label="已通过" value="50"></el-option>
-              <el-option label="分配用车" value="60"></el-option>
-              <el-option label="工单结束" value="70"></el-option>
+            <el-select placeholder="请选择" v-model="searchApplication.status">
+<!--              <el-option label="已发起" value="10"></el-option>-->
+<!--              <el-option label="撤销" value="20"></el-option>-->
+<!--              <el-option label="审核中" value="30"></el-option>-->
+<!--              <el-option label="驳回" value="40"></el-option>-->
+<!--              <el-option label="已通过" value="50"></el-option>-->
+<!--              <el-option label="分配用车" value="60"></el-option>-->
+<!--              <el-option label="工单结束" value="70"></el-option>-->
+              <el-option v-for="item in auditOptions" :label="item.label"
+                         :value="item.value"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="5">
           <el-form-item>
-            <el-button>重置</el-button>
-            <el-button type="primary">查询</el-button>
+            <el-button @click="resetSearch">重置</el-button>
+            <el-button type="primary" @click="loadApplication">查询</el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -145,7 +148,7 @@
   </el-card>
   <!-- 用车申请表格 -->
   <el-card style="margin:20px">
-    <el-table>
+    <el-table :data="tableData">
       <el-table-column type="index" width="80" align="center" prop="id" label="编号"></el-table-column>
       <el-table-column align="center" prop="username" label="申请人"></el-table-column>
       <el-table-column align="center" prop="departureAddr" label="出发地"></el-table-column>
@@ -154,7 +157,8 @@
       <el-table-column align="center" prop="auditUsernameList" label="审批人"></el-table-column>
       <el-table-column align="center" prop="startTime" label="使用开始时间"></el-table-column>
       <el-table-column align="center" prop="endTime" label="使用结束时间"></el-table-column>
-      <el-table-column align="center" prop="status" label="申请单状态"></el-table-column>
+      <el-table-column align="center" prop="status" label="申请单状态"
+      :formatter="appStatusFormatter"></el-table-column>
       <el-table-column label="操作" width="120" align="center">
         <template #default="scope">
           <el-button type="primary" size="small" link>撤销</el-button>
@@ -215,6 +219,7 @@ const loadAuditUser = ()=>{
 }
 onMounted(()=>{
   loadAuditUser();
+  loadApplication();
 })
 
 //初始化时间对象 数组
@@ -243,9 +248,78 @@ const addApplication = ()=>{
   console.log(addForm.value);
   let data = qs.stringify(addForm.value);
   axios.post(BASE_URL+'/v1/application/save', data).then((response)=>{
-    console.log(response)
+   if (response.data.code==2000){
+     addApplicationDialogVisible.value= false;
+     //清空表单数据
+     addForm.value={};
+     times.value=[];
+     fileList.value=[];
+     loadApplication();
+   }else {
+     ElMessage.error(response.data.msg)
+   }
   })
 }
+
+//handleClose
+const handleClose = ()=>{
+  if (confirm('确定是否关闭')){
+    addApplicationDialogVisible.value= false;
+    //清空表单数据
+    addForm.value={};
+    times.value=[];
+    fileList.value=[];
+  }
+}
+//定义查询对象
+const searchApplication = ref({departureAddr:'',destinationAddr:'',status:''});
+//准备数组用来存放申请单列表表格数据
+const tableData = ref([]);
+const loadApplication=()=>{
+ let data = qs.stringify(searchApplication.value);
+ axios.get(BASE_URL+'/v1/application/select?'+data).then((response)=>{
+   if(response.data.code==2000){
+     tableData.value = response.data.data;
+  }else{
+     ElMessage.error(response.data.msg)
+  }
+ })
+}
+//resetSearch重置函数
+const resetSearch=()=>{
+  searchApplication.value = {};
+  loadApplication();
+}
+//状态码搜索的下拉列表
+const auditOptions = ref([
+  { value:'10',label:'已发起' },
+  { value:'20',label:'撤销' },
+  { value:'30',label:'审核中' },
+  { value:'40',label:'驳回' },
+  { value:'50',label:'已通过' },
+  { value:'60',label:'分配用车' },
+  { value:'70',label:'工单结束' }
+])
+//状态码的格式化函数
+const appStatusFormatter = (row, column,cellValue,index) => {
+  if (cellValue==10){
+    cellValue= '已发起';
+  }else if (cellValue==20){
+    cellValue= '撤销';
+  }else if (cellValue==30){
+    cellValue= '审核中';
+  }else if (cellValue==40){
+    cellValue= '驳回';
+  }else if (cellValue==50){
+    cellValue= '已通过';
+  }else if (cellValue==60){
+    cellValue= '分配用车';
+  }else if (cellValue==70){
+    cellValue= '工单结束';
+  }
+  return cellValue;
+}
+
 </script>
 
 <style scoped>

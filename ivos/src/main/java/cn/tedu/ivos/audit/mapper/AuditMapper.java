@@ -11,7 +11,7 @@ import java.util.List;
 public interface AuditMapper {
     //新增
     void insert(Audit audit);
-
+    //根基申请单id 查询审批集合
     List<AuditVO> selectAuditByApplicationId(Long id);
 
     void deleteByApplicationId(Long id);
