@@ -71,6 +71,7 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public void updateAudit(AuditSaveParam auditSaveParam) {
         Audit audit = new Audit();
+//        id  状态  审批单的id  +
         BeanUtils.copyProperties(auditSaveParam,audit);
         //准备当前审批单对应的申请单对象
         Application application = new Application();
@@ -85,8 +86,9 @@ public class AuditServiceImpl implements AuditService {
             AuditQuery auditQuery = new AuditQuery();
             auditQuery.setApplicationId(auditSaveParam.getApplicationId());
             Integer count = auditMapper.selectRestAuditCount(auditQuery);
-            if (count>0){//表示还有未审核的数据
-                //下一条审批数据的sort 就是当前数据+1  在之前insert的时候设置的顺序
+            //表示还有未审核的数据
+            //下一条审批数据的sort 就是当前数据+1  在之前insert的时候设置的顺序
+            if (count>0){
                 auditQuery.setAuditSort(audit.getAuditSort()+1);
                 //查询下一条审核单的数据
                 List<AuditVO> list = auditMapper.selectAudit(auditQuery);
@@ -97,11 +99,38 @@ public class AuditServiceImpl implements AuditService {
                     audit1.setAuditStatus(AuditStatusEnum.MY_PENDING.getCode());
                     auditMapper.update(audit1);
                 }
+                //申请单数据要修改状态  审核中
+                application.setStatus(ApplicationStatusEnum.AUDIT.getCode());
+                applicationMapper.update(application);
             }
-//申请单数据要修改状态  审核中
-            application.setStatus(ApplicationStatusEnum.AUDIT.getCode());
-            applicationMapper.update(application);
-        }else {
+            else {
+                //修改申请单的状态---审核通过
+                application.setStatus(ApplicationStatusEnum.AUDITED.getCode());
+                applicationMapper.update(application);
+
+            }
+        }
+        else {
+            //修改审核表的信息--》审批状态 改为驳回状态--并且删除其余的审批信息
+            auditMapper.update(audit);
+            /**
+             * 查询其余审核人的信息--》同时修改他们的状态 或者直接删除审批数据
+             */
+            AuditQuery auditQuery = new AuditQuery();
+            auditQuery.setApplicationId(auditSaveParam.getApplicationId());
+            //根据申请单id查询所有审核单
+            List<AuditVO> list = auditMapper.selectAudit(auditQuery);
+            if (list!=null&&list.size()>0){
+                //可以直接删
+                for (int i = 0; i < list.size(); i++) {
+                    AuditVO auditVO = list.get(i);
+                    //如果当前审核单处于带我审核--》直接删除
+                    if (auditVO.getAuditStatus().equals(AuditStatusEnum.MY_PENDING.getCode())){
+                        auditMapper.deleteById(auditVO.getId());
+                    }
+                }
+            }
+            //修改工单状态--驳回
             application.setStatus(ApplicationStatusEnum.REJECT.getCode());
             applicationMapper.update(application);
         }
