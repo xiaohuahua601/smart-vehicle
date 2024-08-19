@@ -40,7 +40,7 @@
       <el-table-column label="操作" width="100" align="center" v-if="type==10||type==40" :key="audit">
         <template #default="scope">
           <!-- 审批10：在待我审核页签下显示，需要当前登录用户进行审批 -->
-          <el-button type="primary" link v-if="type==10">审批</el-button>
+          <el-button type="primary" link v-if="type==10" @click="Auditing(scope.row.id)">审批</el-button>
           <!-- 查看40：在驳回页签下显示，可以查看已驳回申请的驳回原因 -->
           <el-button type="primary" link v-if="type==40">查看</el-button>
         </template>
@@ -51,23 +51,23 @@
   <!-- 审批/查看弹窗 -->
   <el-dialog :title="dialogTitle" v-model="auditDialogVisible">
     <el-descriptions direction="horizontal" :column="2" border>
-      <el-descriptions-item label="用车人">rose</el-descriptions-item>
-      <el-descriptions-item label="用车事由">物料运输</el-descriptions-item>
-      <el-descriptions-item label="使用开始时间">2024-05-28 08:00:00</el-descriptions-item>
-      <el-descriptions-item label="使用结束时间">2024-06-01 08:00:00</el-descriptions-item>
-      <el-descriptions-item label="车辆出发地">北京市海淀区</el-descriptions-item>
-      <el-descriptions-item label="车辆目的地">北京市昌平区</el-descriptions-item>
+      <el-descriptions-item label="用车人">{{auditDialogData.username}}</el-descriptions-item>
+      <el-descriptions-item label="用车事由">{{ auditDialogData.reason  }}</el-descriptions-item>
+      <el-descriptions-item label="使用开始时间">{{auditDialogData.startTime}}</el-descriptions-item>
+      <el-descriptions-item label="使用结束时间">{{ auditDialogData.endTime}}</el-descriptions-item>
+      <el-descriptions-item label="车辆出发地">{{auditDialogData.departureAddr }}</el-descriptions-item>
+      <el-descriptions-item label="车辆目的地">{{auditDialogData.destinationAddr}}</el-descriptions-item>
       <el-descriptions-item label="驾照图片">
-        <img src="/imgs/admin/drivingLicense.png" style="width:150px;">
+        <img :src="BASE_URL+auditDialogData.imgUrl" style="width:150px;">
       </el-descriptions-item>
-      <el-descriptions-item label="备注">因仓储不够，急需调用车辆进行物料运输</el-descriptions-item>
+      <el-descriptions-item label="备注">{{auditDialogData.remark}}</el-descriptions-item>
       <!--  驳回原因要在点击驳回才显示 -->
       <!--  <el-descriptions-item label="驳回原因">暂无可用车辆</el-descriptions-item> -->
     </el-descriptions>
     <template #footer>
       <el-button>取消</el-button>
-      <el-button type="primary" plain>驳回</el-button>
-      <el-button type="primary">通过</el-button>
+      <el-button type="primary" plain @click="rejectInnerDialogVisible=true">驳回</el-button>
+      <el-button type="primary" @click="auditPass">通过</el-button>
     </template>
   </el-dialog>
 
@@ -75,12 +75,12 @@
   <el-dialog title="驳回 查看" v-model="rejectInnerDialogVisible" style="margin-top: 37vh;">
     <el-descriptions direction="horizontal" border>
       <el-descriptions-item label="驳回原因">
-        <el-input placeholder="请输入驳回原因"></el-input>
+        <el-input placeholder="请输入驳回原因" v-model="rejectReason"></el-input>
       </el-descriptions-item>
     </el-descriptions>
     <template #footer>
       <el-button type="primary" plain>取消</el-button>
-      <el-button type="primary">确定</el-button>
+      <el-button type="primary" @click="auditReject">确定</el-button>
     </template>
   </el-dialog>
 </template>
@@ -132,6 +132,75 @@ const resetSearch = ()=>{
   search.value.username='';
   loadAudit();
 }
+//初始化查询对象
+//定义变量保存审批弹窗数据
+const auditDialogData = ref({
+  username: "",//申请人姓名
+  reason: "",//用车事由
+  startTime: "",//开始时间
+  endTime: "",//结束时间
+  departureAddr: "", //出发地
+  destinationAddr: "",//目的地
+  imgUrl: "",//驾照图片
+  remark: ""//备注
+})
+//Auditing(scope.row.id)审批  --查看
+const Auditing = (id)=>{
+  auditDialogVisible.value = true;
+  axios.get(BASE_URL+'/v1/audit/select?id='+id).then((response)=>{
+    console.log(response)
+    if (response.data.code == 2000){
+      auditDialogData.value = response.data.data[0];
+    }
+  })
+}
+//auditPass
+const auditPass = ()=>{
+  auditDialogData.value.auditStatus = 30;
+  let data = qs.stringify(auditDialogData.value);
+  axios.post(BASE_URL+'/v1/audit/update',data).then((response)=>{
+    if (response.data.code == 2000){
+      ElMessage.success('审批已通过!');
+      //关闭审批通过弹窗
+      auditDialogVisible.value = false;
+      //将审批弹窗数据对象置空
+      auditDialogData.value = {};
+      //审批通过后可以切换页签至"已审核"
+      //type.value = 30;
+      //也可以重新加载审批数据
+      loadAudit();
+    }
+  })
+}
+//rejectReason
+const rejectReason = ref();
+//auditReject
+const auditReject =()=>{
+  if (rejectReason.value==null){
+    ElMessage.error('驳回原因不能为空!');
+    return;
+  }
+  rejectInnerDialogVisible.value = false;
+  auditDialogVisible.value=false
+  auditDialogData.value.auditStatus = 40;
+  auditDialogData.value.rejectReason = rejectReason.value
+  let data = qs.stringify(auditDialogData.value);
+  axios.post(BASE_URL+'/v1/audit/update',data).then((response)=>{
+    if (response.data.code == 2000){
+      ElMessage.success('驳回成功!');
+      //关闭审批通过弹窗
+      auditDialogVisible.value = false;
+      //将审批弹窗数据对象置空
+      auditDialogData.value = {};
+      //审批通过后可以切换页签至"已审核"
+      //type.value = 30;
+      //也可以重新加载审批数据
+      loadAudit();
+    }
+  })
+
+}
+//取消 自己初始化
 </script>
 
 <style>
