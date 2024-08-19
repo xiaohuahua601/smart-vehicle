@@ -28,7 +28,7 @@
       <el-radio-button value="40" size="large">驳回</el-radio-button>
     </el-radio-group>
     <!--  审批列表  -->
-    <el-table>
+    <el-table :data="AuditArr">
       <el-table-column label="编号" prop="id" align="center" width="55" type="index"></el-table-column>
       <el-table-column label="用车人" prop="username" align="center" width="110"></el-table-column>
       <el-table-column label="开始时间" prop="startTime"  align="center"></el-table-column>
@@ -88,6 +88,8 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import qs from "qs";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 //控制审批弹窗标题
 const dialogTitle = ref("待审批详情");
 //控制审批弹窗是否显示
@@ -103,6 +105,8 @@ const search = ref({
 //获取当前登录的用户对象--》查询跟他相关的审批工单
 const user = ref(getUser());
 const type = ref(10);
+//接受查询的集合
+const AuditArr = ref([]);
 //加载表格数据
 const loadAudit=()=>{
   //只查询跟自己相关的申请单
@@ -111,6 +115,13 @@ const loadAudit=()=>{
   let data = qs.stringify(search.value);
   console.log(data)
   //发起申请
+  axios.get(BASE_URL+'/v1/audit/select?'+data).then((response)=>{
+    if (response.data.code==2000){
+      AuditArr.value = response.data.data;
+    }else {
+      ElMessage.error(response.data.msg)
+    }
+  })
 }
 //页面一加载立即加载数据
 onMounted(()=>{

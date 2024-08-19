@@ -15,7 +15,7 @@ public interface AuditMapper {
     List<AuditVO> selectAuditByApplicationId(Long id);
 
     void deleteByApplicationId(Long id);
-
+//查询审批单
     List<AuditVO> selectAudit(AuditQuery auditQuery);
 
     void update(Audit audit);
