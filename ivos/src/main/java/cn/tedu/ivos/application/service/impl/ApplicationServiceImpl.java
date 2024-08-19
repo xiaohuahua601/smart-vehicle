@@ -84,9 +84,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<String> auditUsernameList = new ArrayList<>();
         List<Long> auditUserIdList = new ArrayList<>();
         List<AuditVO> auditVOS = auditMapper.selectAuditByApplicationId(applicationVO.getId());
+        System.out.println(auditVOS);
         for (int i = 0;i<auditVOS.size();i++){
             AuditVO auditVO = auditVOS.get(i);
-             Long id = auditVO.getUserId();
+            Long id = auditVO.getAuditUserId();
+            System.out.println(id);
             auditUserIdList.add(id);
             UserVO userVO = userMapper.selectById(id);
             auditUsernameList.add(userVO.getUsername());
