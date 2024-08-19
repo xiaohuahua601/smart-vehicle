@@ -1,16 +1,20 @@
 package cn.tedu.ivos.audit.service.impl;
 
+import cn.tedu.ivos.application.mapper.ApplicationMapper;
 import cn.tedu.ivos.application.pojo.entity.Application;
 import cn.tedu.ivos.application.pojo.vo.ApplicationVO;
 import cn.tedu.ivos.audit.mapper.AuditMapper;
 import cn.tedu.ivos.audit.pojo.dto.AuditQuery;
+import cn.tedu.ivos.audit.pojo.dto.AuditSaveParam;
 import cn.tedu.ivos.audit.pojo.entity.Audit;
 import cn.tedu.ivos.audit.pojo.vo.AuditVO;
 import cn.tedu.ivos.audit.service.AuditService;
+import cn.tedu.ivos.base.enums.ApplicationStatusEnum;
 import cn.tedu.ivos.base.enums.AuditStatusEnum;
 import cn.tedu.ivos.user.mapper.UserMapper;
 import cn.tedu.ivos.user.pojo.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +30,9 @@ public class AuditServiceImpl implements AuditService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    ApplicationMapper applicationMapper;
 
     @Override
     public void insertAudit(Application application) {
@@ -58,6 +65,46 @@ public class AuditServiceImpl implements AuditService {
         }
         //记得返回数据
         return list;
+    }
+
+    //注意:这里就只是更新审批单,新增审批单在新增申请单save()时就已经完成了
+    @Override
+    public void updateAudit(AuditSaveParam auditSaveParam) {
+        Audit audit = new Audit();
+        BeanUtils.copyProperties(auditSaveParam,audit);
+        //准备当前审批单对应的申请单对象
+        Application application = new Application();
+        application.setId(auditSaveParam.getApplicationId());
+        //审核--》
+        // 通过--》状态30 已审核
+        // 驳回--》直接修改工单的状态---》REJECT("40","驳回"),
+        if (auditSaveParam.getAuditStatus().equals(AuditStatusEnum.AUDITED.getCode())){
+            //更新入库,当前审批单对象的状态为"已审核"
+            auditMapper.update(audit);
+            /*继续查询其它审批单*/
+            AuditQuery auditQuery = new AuditQuery();
+            auditQuery.setApplicationId(auditSaveParam.getApplicationId());
+            Integer count = auditMapper.selectRestAuditCount(auditQuery);
+            if (count>0){//表示还有未审核的数据
+                //下一条审批数据的sort 就是当前数据+1  在之前insert的时候设置的顺序
+                auditQuery.setAuditSort(audit.getAuditSort()+1);
+                //查询下一条审核单的数据
+                List<AuditVO> list = auditMapper.selectAudit(auditQuery);
+                if (list!=null && list.size()>0){
+                    AuditVO auditVO = list.get(0);
+                    Audit audit1 = new Audit();
+                    audit1.setId(auditVO.getId());
+                    audit1.setAuditStatus(AuditStatusEnum.MY_PENDING.getCode());
+                    auditMapper.update(audit1);
+                }
+            }
+//申请单数据要修改状态  审核中
+            application.setStatus(ApplicationStatusEnum.AUDIT.getCode());
+            applicationMapper.update(application);
+        }else {
+            application.setStatus(ApplicationStatusEnum.REJECT.getCode());
+            applicationMapper.update(application);
+        }
     }
 
     private void assignAuditUserList(AuditVO auditVO) {

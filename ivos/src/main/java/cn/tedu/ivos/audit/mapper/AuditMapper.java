@@ -17,9 +17,9 @@ public interface AuditMapper {
     void deleteByApplicationId(Long id);
 //查询审批单
     List<AuditVO> selectAudit(AuditQuery auditQuery);
-
+//修改审批单
     void update(Audit audit);
-
+    //查询满足要求的审批单总数
     Integer selectRestAuditCount(AuditQuery auditQuery);
 
     void deleteById(Long id);

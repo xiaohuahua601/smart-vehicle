@@ -1,12 +1,14 @@
 package cn.tedu.ivos.audit.controller;
 
 import cn.tedu.ivos.audit.pojo.dto.AuditQuery;
+import cn.tedu.ivos.audit.pojo.dto.AuditSaveParam;
 import cn.tedu.ivos.audit.pojo.vo.AuditVO;
 import cn.tedu.ivos.audit.service.AuditService;
 import cn.tedu.ivos.base.response.JsonResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,5 +27,12 @@ public class AuditController {
         List<AuditVO> list = auditService.selectAudit(auditQuery);
         //记得返回数据
         return JsonResult.ok(list);
+    }
+    //审批---修改
+    @PostMapping("/update")
+    public JsonResult updateAudit(AuditSaveParam auditSaveParam){
+        log.debug("更新审批单:auditSaveParam={}",auditSaveParam);
+        auditService.updateAudit(auditSaveParam);
+        return JsonResult.ok();
     }
 }
