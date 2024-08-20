@@ -40,4 +40,20 @@ public class ApplicationController {
         applicationService.cancel(id);
         return JsonResult.ok();
     }
+    //分配用车   根据我们申请单id  修改当前的车辆id字段
+    @PostMapping("/distribute/{applicationId}/{vehicleId}")
+    public JsonResult distribute(@PathVariable Long applicationId
+            ,@PathVariable Long vehicleId){
+        log.debug("分配车辆：申请单编号="+applicationId+"车辆编号="+vehicleId);
+        applicationService.distribute(applicationId,vehicleId);
+        return JsonResult.ok();
+    }
+    //还车   根据我们申请单id  修改工单状态  已结束  修改车辆的状态---》占用==》空闲
+    @PostMapping("/back/{applicationId}/{vehicleId}")
+    public JsonResult back(@PathVariable Long applicationId
+            ,@PathVariable Long vehicleId){
+        log.debug("还车车辆：申请单编号="+applicationId+"车辆编号="+vehicleId);
+        applicationService.back(applicationId,vehicleId);
+        return JsonResult.ok();
+    }
 }

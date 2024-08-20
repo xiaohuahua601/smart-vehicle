@@ -12,6 +12,8 @@ import cn.tedu.ivos.audit.service.AuditService;
 import cn.tedu.ivos.base.enums.ApplicationStatusEnum;
 import cn.tedu.ivos.user.mapper.UserMapper;
 import cn.tedu.ivos.user.pojo.vo.UserVO;
+import cn.tedu.ivos.vehicle.mapper.VehicleMapper;
+import cn.tedu.ivos.vehicle.pojo.entity.Vehicle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     AuditMapper auditMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    VehicleMapper vehicleMapper;
     @Override
     public void save(ApplicationSaveParam applicationSaveParam) {
         Application application = new Application();
@@ -72,6 +76,37 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationMapper.update(application);
         //删除对应审核表中的审核数据
         auditMapper.deleteByApplicationId(id);
+    }
+
+    @Override
+    public void distribute(Long applicationId, Long vehicleId) {
+        //更新--》1、申请单的车辆 id字段---修改申请单状态 待分配---》已分配 修改时间
+        Application application = new Application();
+        application.setId(applicationId);
+        application.setVehicleId(vehicleId);
+        application.setStatus(ApplicationStatusEnum.ALLOCATION.getCode());
+        application.setUpdateTime(new Date());
+        applicationMapper.update(application);
+        //2 、车辆的一个状态字段
+        Vehicle vehicle = new Vehicle();
+        vehicle.setId(vehicleId);
+        vehicle.setStatus("2");
+        vehicleMapper.update(vehicle);
+    }
+
+    @Override
+    public void back(Long applicationId, Long vehicleId) {
+        //更新--》1、申请单的车辆 id字段---修改申请单状态 待分配---》已分配 修改时间
+        Application application = new Application();
+        application.setId(applicationId);
+        application.setStatus(ApplicationStatusEnum.END.getCode());
+        application.setUpdateTime(new Date());
+        applicationMapper.update(application);
+        //2 、车辆的一个状态字段
+        Vehicle vehicle = new Vehicle();
+        vehicle.setId(vehicleId);
+        vehicle.setStatus("1");//设置车辆状态为"空闲"
+        vehicleMapper.update(vehicle);
     }
 
     /**

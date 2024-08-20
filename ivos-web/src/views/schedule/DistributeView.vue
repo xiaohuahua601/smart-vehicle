@@ -35,7 +35,7 @@
       <el-table-column label="操作" width="100" align="center">
         <template #default="scope">
           <el-button type="primary" link v-if="type==50" @click="loadGeo(scope.row.id)">分配用车</el-button>
-          <el-button type="primary" link v-if="type==60">还车</el-button>
+          <el-button type="primary" link v-if="type==60" @click="back(scope.row)">还车</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -77,7 +77,7 @@
       <el-table-column label="围栏状态" prop="status" align="center" :formatter="geoStatusFormatter"></el-table-column>
       <el-table-column label="操作" width="100" align="center">
         <template #default="scope">
-          <el-button type="primary" link>查看车辆</el-button>
+          <el-button type="primary" link @click="showVehicle(scope.row.id)">查看车辆</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -85,7 +85,7 @@
 
   <!-- 分配车辆弹窗 -->
   <el-dialog title="分配车辆" style="padding:40px;" v-model="vehicleDialogVisible">
-    <el-table style="margin:20px 0">
+    <el-table style="margin:20px 0" :data="vehicleTableData">
       <el-table-column label="编号" type="index" width="80" align="center"></el-table-column>
       <el-table-column label="车辆品牌" prop="brand" width="200" align="center"></el-table-column>
       <el-table-column label="车牌号" prop="license" width="200" align="center"></el-table-column>
@@ -93,7 +93,7 @@
       <el-table-column label="车辆状态" prop="status" align="center"></el-table-column>
       <el-table-column label="操作" width="100" align="center">
         <template #default="scope">
-          <el-button type="primary" link>分配</el-button>
+          <el-button type="primary" link @click="distribute(scope.row.id)">分配</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -119,7 +119,7 @@ const search = ref({
 const appTableData = ref([]);
 //定义查询函数
 const loadApplication = ()=>{
-  search.value.type = type.value;
+  search.value.status = type.value;
   let data = qs.stringify(search.value);
   console.log(data)
   axios.get(BASE_URL+'/v1/application/select?'+data).then((response)=>{
@@ -148,7 +148,9 @@ const searchGeofenceForm = ref({
 //数据 存放查询结果
 const geoTableData = ref([]);
 //加载围栏数据 当前申请id
+var applicationId;
 const loadGeo = (id)=>{
+  applicationId = id;
   dialogVisible.value=true;
   let data = qs.stringify(searchGeofenceForm.value);
   axios.get(BASE_URL+'/v1/geofence/select?'+data).then((response)=>{
@@ -175,6 +177,50 @@ const geoStatusFormatter = (row, column,cellValue,index) => {
   }
   return cellValue;
 }
+//声明一个车辆数组 保存查询车辆数据
+const vehicleTableData = ref([])
+//showVehicle(scope.row.id) 查看车辆信息
+const showVehicle = (id)=>{
+  vehicleDialogVisible.value=true;
+  axios.get(BASE_URL+'/v1/vehicle/select?geofenceId='+id).then((response)=>{
+    if (response.data.code ==2000){
+      //记得改为车辆数组对象
+      vehicleTableData.value= response.data.data;
+    }else {
+      ElMessage.error(response.data.msg)
+    }
+  })
+}
+//distribute(scope.row.id)  还需要知道申请单的id
+const distribute=(id)=> {
+  axios.post(BASE_URL + '/v1/application/distribute/' + applicationId + '/' + id + '').then((response) => {
+    if (response.data.code == 2000) {
+      //关闭围栏弹窗
+      dialogVisible.value = false;
+      //关闭分配车辆弹窗
+      vehicleDialogVisible.value = false;
+      //重新加载申请单数据
+      loadApplication();
+      ElMessage.success('车辆分配成功!');
+    } else {
+      ElMessage.error(response.data.msg);
+    }
+  })
+}
+
+const back=(row)=> {
+  //row代表调用方法时传过来的整行工单数据 row.id就是applicationId row.vehicleId就是当前工单的车辆id
+  axios.post(BASE_URL + '/v1/application/back/' + row.id + '/' + row.vehicleId + '').then((response) => {
+    if (response.data.code == 2000) {
+      //重新加载申请单数据
+      loadApplication();
+      ElMessage.success('车辆还车成功!');
+    } else {
+      ElMessage.error(response.data.msg);
+    }
+  })
+}
+
 </script>
 
 <style scoped>
