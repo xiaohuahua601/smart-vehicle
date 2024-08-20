@@ -35,6 +35,35 @@ public class GeofenceServiceImpl implements GeofenceService {
     public List<GeofenceVO> selectGeofence(GeofenceQuery geofenceQuery) {
         //查询围栏列表
         List<GeofenceVO> geofenceVOS = geofenceMapper.selectGeofence(geofenceQuery);
+        //查询对应每一个电子围栏中的 车辆总数 以及可用车辆
+        for (int i = 0; i < geofenceVOS.size(); i++) {
+            //依次取出每个遍历到的围栏对象
+            GeofenceVO geofenceVO = geofenceVOS.get(i);
+            //根据围栏的id  查询电子围栏中车辆的数据
+            VehicleQuery vehicleQuery = new VehicleQuery();
+            //条件为 电子围栏id
+            vehicleQuery.setGeofenceId(geofenceVO.getId());
+            List<VehicleVO> vehicleVOS = vehicleMapper.selectVehicle(vehicleQuery);
+            //获取集合的总数据  总共的车辆数据
+            int totalNum = vehicleVOS.size();
+            //获取可以车辆数据  车辆状态  0占用 1 空闲
+            int availableNum = 0;
+            for (VehicleVO vehicleVO:vehicleVOS) {
+                if (vehicleVO.getStatus().equals("1")){
+                    ++availableNum;
+                }
+            }
+            if (availableNum>0){
+                //有空闲的车
+                geofenceVO.setAvailableNum(availableNum);
+            }else {
+                //没有空闲的车
+                geofenceVO.setAvailableNum(0);
+            }
+            geofenceVO.setTotalNum(totalNum);
+            geofenceVO.setVehicleList(vehicleVOS);
+
+        }
         //记得返回数据
         return geofenceVOS;
     }
