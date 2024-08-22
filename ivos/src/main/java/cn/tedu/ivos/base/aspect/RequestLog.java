@@ -29,6 +29,7 @@ import java.util.stream.Stream;
  * 切面日志
  * @Aspect 声明当前的类是一个切面类
  * @Component 类初始化--》放到spring容器来面
+ * 注释--》jvm-->做成一个注解--》
  */
 @Aspect
 @Component
@@ -37,12 +38,21 @@ public class RequestLog {
     private final static Logger logger = LoggerFactory.getLogger(RequestLog.class);
 
     //公共方法===》通知方法
+     /*
+     bean 对象
+     within-->指定包
+     execution--》按语法匹配
+     @annotaion-->通过注解
+      */
     //execution==>匹配 多个类 多个方法
     //execution()-->表达式---》修饰符   返回值结构  包路径.类名称.方法名称（入参）
     //execution(pulic JsonRuselt cn.tedu.ivos.user.controller.UserController.login(UserLoginParam))  连接点
     //execution(pulic * cn.tedu.ivos.*.*.UserController.*(..))  连接点
     //execution(pulic * cn.tedu.ivos.*.controller.*.*(..))  连接点
     @Pointcut("execution(public * cn.tedu.ivos.*.controller.*.*(..))")
+//    @Pointcut("within(cn.tedu.ivos.user.controller)")
+//    @Pointcut("bean(userController)")
+//    @Pointcut("@annotation(Log)")
     public void anyController(){}
 
     //通知方法 执行的类型 前置通知

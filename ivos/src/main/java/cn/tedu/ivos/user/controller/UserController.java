@@ -27,6 +27,7 @@ public class UserController {
     // post+对象---》@RequestBody 从请求体里面来接受数据
     @PostMapping("/login")
     @ApiOperation("登录功能")
+//    @Log
 //   去掉  @RequestBody
     public JsonResult login( UserLoginParam userLoginParam){
         log.info("登录的用户对象是什么:{}",userLoginParam);
