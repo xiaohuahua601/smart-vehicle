@@ -20,8 +20,8 @@
   <!-- 工单信息列表 -->
   <el-card  style="margin:20px;">
     <el-radio-group style="margin-bottom: 15px;" v-model="type">
-      <el-radio-button value="50" size="large">待分配</el-radio-button>
-      <el-radio-button value="60" size="large">已分配</el-radio-button>
+      <el-radio-button value="50" size="large" @change="loadApplication">待分配</el-radio-button>
+      <el-radio-button value="60" size="large" @change="loadApplication">已分配</el-radio-button>
     </el-radio-group>
     <el-table :data="appTableData">
       <el-table-column label="编号" type="index" width="100" align="center"></el-table-column>
