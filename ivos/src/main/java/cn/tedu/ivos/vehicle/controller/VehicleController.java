@@ -39,6 +39,7 @@ public class VehicleController {
     @PostMapping("/save")
     @ApiOperation("车辆的新增和修改")
     public JsonResult saveVehicle(VehicleSaveParam vehicleSaveParam){
+        vehicleSaveParam.setGeofenceBindStatus("0");
         log.debug("新增车辆参数vehicleSaveParam:{}",vehicleSaveParam);
         vehicleService.saveVehicle(vehicleSaveParam);
         return JsonResult.ok();
@@ -68,7 +69,4 @@ public class VehicleController {
         vehicleService.bindVehicle(geofenceId,vehicleId);
         return JsonResult.ok();
     }
-
-
-
 }

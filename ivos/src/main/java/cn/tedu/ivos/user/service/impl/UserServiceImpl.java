@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
         //判断查询结果 对象存不存在  密码对不对
         //userMapper.selectByUsername(userLoginParam.getUsername()).var; 然后右有提示 直接回车
         UserVO userVO = userMapper.selectByUsername(userLoginParam.getUsername());
+        System.out.println(userVO);
         if (userVO==null){
             //用户对象不存在，抛出异常
             throw new ServiceException(StatusCode.USERNAME_ERROR);

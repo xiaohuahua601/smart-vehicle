@@ -17,9 +17,7 @@ const routes = [
       {path: '/geofenceMap', component: () => import('../views/geofence/GeofenceMapView.vue')},
       {path: '/application', component: () => import('../views/schedule/ApplicationView.vue')},
       {path: '/audit', component: () => import('../views/schedule/AuditView.vue')},
-      {path: '/distribute', component: () => import('../views/schedule/DistributeView.vue')},
-      {path: '/dict', component: () => import('../views/dictionary/DictView.vue')},
-      {path: '/dictOption', component: () => import('../views/dictionary/DictOptionView.vue')}
+      {path: '/distribute', component: () => import('../views/schedule/DistributeView.vue')}
     ]
   },
   {

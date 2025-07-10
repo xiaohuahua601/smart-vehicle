@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/v1/audit")
-public class AuditController {
+public class AuditController{
     @Autowired
     AuditService auditService;
 

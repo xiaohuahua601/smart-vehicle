@@ -4,9 +4,6 @@
     <el-container style="padding:30px">
       <el-header>
         <el-row>
-          <el-col :span="3">
-            <img src="/imgs/login/logo.png" style="height: 50px">
-          </el-col>
           <el-col :span="1">
             <img src="/imgs/login/auto.png"  style="height: 50px">
           </el-col>
@@ -14,7 +11,7 @@
             <img src="/imgs/login/verticalLine.png"  style="height: 50px">
           </el-col>
           <el-col :span="19" style="text-align: left">
-            <span style="color: #fff;font-size: 30px;font-weight: bold"> 智慧车辆运营管理系统 </span>
+            <span style="color: #fff;font-size: 30px;font-weight: bold"> 智链行 </span>
           </el-col>
         </el-row>
       </el-header>

@@ -27,7 +27,7 @@
           </el-col>
           <el-col :span="isCollapse ? 0 : 13">
             <router-link to="/" style="color:#fff;text-decoration:none;position:relative;top:8px;left:2px;font-weight: bold;">
-              智慧车辆
+              智链行
             </router-link>
           </el-col>
         </el-row>
