@@ -1,30 +1,24 @@
-# smart-vehicle｜车辆申请、审批与调度管理系统
+# smart-vehicle｜车辆申请与调度管理系统
 
-> 一个前后端分离的车辆管理练习项目，围绕“申请用车 → 按顺序审批 → 分配车辆 → 归还车辆”组织业务数据和页面。
+这是一个前后端分离的车辆管理项目。用户提交用车申请，审批人依次处理，调度人员在审批通过后分配车辆，归还时恢复车辆为空闲。系统同时提供用户、车辆和电子围栏管理页面。
 
-## 项目概览
+## 主要流程
 
-| 项目要点 | 说明 |
-| --- | --- |
-| 场景 | 管理用户、车辆和电子围栏，并让用车申请进入审批与调度流程。 |
-| 核心实现 | 提交申请时创建对应审批记录；审批通过后推进下一位审批人，全部通过后更新申请状态；调度时关联车辆并改变车辆状态，归还时恢复空闲。 |
-| 技术栈 | Java/Spring Boot、Spring Security、MyBatis、MySQL；Vue 3、Vue Router、Vuex、Element Plus、Axios。 |
-| 项目边界 | 仓库含前后端源码，但缺少后端 Maven/Gradle 构建文件和数据库初始化脚本，暂不能按本文直接一键复现后端。 |
+1. **提交申请**：保存用车信息，并为所选审批人生成按顺序排列的审批记录。
+2. **依次审批**：第一位审批人处理后，下一位进入“待我审核”；全部通过后申请变为已通过，驳回则更新申请状态。
+3. **分配车辆**：将车辆关联到申请，并把车辆状态改为使用中。
+4. **归还车辆**：结束申请，将车辆状态恢复为空闲。
 
-## 业务流程与代码入口
+这条流程分别由 [申请服务](ivos/src/main/java/cn/tedu/ivos/application/service/impl/ApplicationServiceImpl.java) 和 [审批服务](ivos/src/main/java/cn/tedu/ivos/audit/service/impl/AuditServiceImpl.java) 实现。前端的申请、审批、分配、车辆和围栏页面可从 [路由配置](ivos-web/src/router/index.js) 进入。
 
-1. **用户提交申请**：[ApplicationServiceImpl](ivos/src/main/java/cn/tedu/ivos/application/service/impl/ApplicationServiceImpl.java) 保存申请并调用审批服务建立审批链。
-2. **顺序审批**：[AuditServiceImpl](ivos/src/main/java/cn/tedu/ivos/audit/service/impl/AuditServiceImpl.java) 将首位审批人设为待我审核，通过后推进下一位；驳回则更新申请状态。
-3. **车辆分配与归还**：申请服务更新申请与车辆状态，形成从申请到归还的状态流转。
-4. **围栏管理**：[GeofenceServiceImpl](ivos/src/main/java/cn/tedu/ivos/geofence/service/impl/GeofenceServiceImpl.java) 处理围栏位置数据；删除前检查是否仍有车辆关联。
-5. **前端操作**：[路由配置](ivos-web/src/router/index.js) 对应用户、车辆、围栏、申请、审批和分配页面；页面调用后端接口展示和修改数据。
+## 其他功能
 
-## 仓库结构
+- **车辆与用户管理**：维护车辆、用户信息，供用车申请和分配使用。
+- **电子围栏**：保存围栏位置数据；删除围栏前检查是否仍有车辆关联，见 [围栏服务](ivos/src/main/java/cn/tedu/ivos/geofence/service/impl/GeofenceServiceImpl.java)。
+- **登录与界面**：管理端使用 Vue 3、Vue Router、Vuex、Element Plus；后端使用 Spring Boot、Spring Security、MyBatis 和 MySQL。
 
-- `ivos/`：Spring Boot 后端，按 `application`、`audit`、`vehicle`、`geofence`、`user` 分模块，含 Controller、Service、Mapper 与 XML。
-- `ivos-web/`：Vue 管理端；`npm install` 后运行 `npm run serve`，开发端口由脚本设为 9090。
-- [后端配置](ivos/src/main/resources/application.properties)：默认端口 8080，数据库为本地 MySQL 的 `ivos`。
+## 仓库结构与运行
 
-## 当前限制
+`ivos/` 是 Java 后端，按申请、审批、车辆、围栏和用户拆分模块；`ivos-web/` 是 Vue 管理端。在 `ivos-web` 中安装依赖并运行 `npm run serve`，开发脚本使用 9090 端口。后端 [配置文件](ivos/src/main/resources/application.properties) 默认使用 8080 端口和本地 `ivos` 数据库。
 
-这是源码展示版本，尚未提供完整的后端构建描述与建库脚本。前端路由中的登录检查依赖浏览器本地存储；后端安全配置放行了所有路径，因此当前实现不应作为生产级权限方案。运行前还需要更换仓库中的示例数据库凭据和文件路径。本介绍基于静态源码核查，未进行本机联调。
+**当前仓库是源码展示版本**：没有提交后端 Maven/Gradle 构建文件和数据库初始化脚本，无法只凭仓库内容一键启动后端。前端登录检查依赖本地存储，后端安全配置放行所有路径，尚不适合生产环境。运行前需要替换配置中的示例数据库凭据和文件路径。本文依据静态源码核查，未进行本机联调。
