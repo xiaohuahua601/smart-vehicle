@@ -17,8 +17,6 @@
 - **电子围栏**：保存围栏位置数据；删除围栏前检查是否仍有车辆关联，见 [围栏服务](ivos/src/main/java/cn/tedu/ivos/geofence/service/impl/GeofenceServiceImpl.java)。
 - **登录与界面**：管理端使用 Vue 3、Vue Router、Vuex、Element Plus；后端使用 Spring Boot、Spring Security、MyBatis 和 MySQL。
 
-## 仓库结构与运行
+## 技术与代码结构
 
-`ivos/` 是 Java 后端，按申请、审批、车辆、围栏和用户拆分模块；`ivos-web/` 是 Vue 管理端。在 `ivos-web` 中安装依赖并运行 `npm run serve`，开发脚本使用 9090 端口。后端 [配置文件](ivos/src/main/resources/application.properties) 默认使用 8080 端口和本地 `ivos` 数据库。
-
-**当前仓库是源码展示版本**：没有提交后端 Maven/Gradle 构建文件和数据库初始化脚本，无法只凭仓库内容一键启动后端。前端登录检查依赖本地存储，后端安全配置放行所有路径，尚不适合生产环境。运行前需要替换配置中的示例数据库凭据和文件路径。本文依据静态源码核查，未进行本机联调。
+`ivos/` 是 Java 后端，按申请、审批、车辆、围栏和用户拆分模块；`ivos-web/` 是 Vue 管理端。前端使用 Vue 3、Vue Router、Vuex 和 Element Plus；后端使用 Spring Boot、Spring Security、MyBatis 与 MySQL。[申请服务](ivos/src/main/java/cn/tedu/ivos/application/service/impl/ApplicationServiceImpl.java) 和 [审批服务](ivos/src/main/java/cn/tedu/ivos/audit/service/impl/AuditServiceImpl.java) 是理解主流程的入口。
